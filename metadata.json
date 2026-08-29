@@ -1,0 +1,8 @@
+{
+  "name": "Remix TM INDUSTRIAL SOLUTION",
+  "description": "Condition Monitoring \u0026 Vibration Analysis Dashboard for Shree Durga Syntex by TM INDUSTRIAL SOLUTION featuring unique equipment health analytics, monthly trends, top bad actors, and report exports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
