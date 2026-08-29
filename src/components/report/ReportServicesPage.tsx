@@ -1,5 +1,6 @@
 import React from 'react';
 import { TMLogoEmblem } from '@/components/dashboard/TMIndustrialLogo';
+import { useContactInfo } from '@/lib/contactStore';
 import {
   Activity,
   Sliders,
@@ -15,6 +16,7 @@ import {
   Award,
   CheckCircle2,
   Building2,
+  MapPin,
 } from 'lucide-react';
 
 interface ReportServicesPageProps {
@@ -28,6 +30,7 @@ export const ReportServicesPage: React.FC<ReportServicesPageProps> = ({
   pageNumber,
   totalPages,
 }) => {
+  const { contactInfo } = useContactInfo();
   const services = [
     {
       title: 'Vibration Analysis & Diagnostics',
@@ -202,21 +205,35 @@ export const ReportServicesPage: React.FC<ReportServicesPageProps> = ({
       {/* Corporate Contact & Authorization Block */}
       <div className="mt-4 pt-3 border-t border-slate-300">
         <div className="grid grid-cols-2 gap-6 text-xs">
-          <div className="space-y-1 text-[11px] text-slate-600">
+          <div className="space-y-1.5 text-[11px] text-slate-600">
             <span className="text-[10px] uppercase font-bold text-slate-800 block">
-              TM INDUSTRIAL SOLUTION • Head Office & Technical Center
+              {contactInfo.headOffice}
             </span>
             <p className="flex items-center gap-1.5 text-slate-700">
-              <Building2 className="h-3.5 w-3.5 text-slate-400" />
-              Specialized Vibration, Laser Alignment & Reliability Services
+              <Building2 className="h-3.5 w-3.5 text-red-600 shrink-0" />
+              <span>{contactInfo.tagline}</span>
             </p>
             <p className="flex items-center gap-1.5 text-slate-700">
-              <Phone className="h-3.5 w-3.5 text-slate-400" />
-              Diagnostic Technical Helpline: +91 98250 XXXXX / +91 94260 XXXXX
+              <Phone className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <span>Helpline: <strong>+91 {contactInfo.phone}</strong> ({contactInfo.phone})</span>
             </p>
             <p className="flex items-center gap-1.5 text-slate-700">
-              <Mail className="h-3.5 w-3.5 text-slate-400" />
-              Email: contact@tmindustrialsolution.com • diagnostics@tmis.in
+              <Mail className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+              <span>Email: <strong>{contactInfo.email}</strong></span>
+            </p>
+            <p className="flex items-center gap-1.5 text-slate-700">
+              <Globe className="h-3.5 w-3.5 text-purple-600 shrink-0" />
+              <span>Website: <strong>{contactInfo.website}</strong></span>
+              <span className="text-slate-300">|</span>
+              <MapPin className="h-3.5 w-3.5 text-red-600 shrink-0" />
+              <a
+                href={contactInfo.mapsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-red-700 font-semibold underline hover:text-red-900"
+              >
+                Google Maps Location
+              </a>
             </p>
           </div>
 
@@ -225,16 +242,16 @@ export const ReportServicesPage: React.FC<ReportServicesPageProps> = ({
               Official Seal & Authorization:
             </span>
             <div className="mt-3 border-b-2 border-slate-800 w-48 text-center pb-1">
-              <span className="text-[10px] font-bold text-blue-900">TM INDUSTRIAL SOLUTION</span>
+              <span className="text-[10px] font-bold text-slate-900">{contactInfo.companyName}</span>
             </div>
-            <span className="text-[9px] text-slate-400 mt-0.5">
-              Head - Reliability Engineering & Diagnostics
+            <span className="text-[9px] text-slate-500 mt-0.5">
+              {contactInfo.technicalLead}
             </span>
           </div>
         </div>
 
         <div className="mt-3 pt-2 border-t border-slate-200 flex items-center justify-between text-[10px] text-slate-400">
-          <span>TM Industrial Solution • Predictive Maintenance Portfolio</span>
+          <span>{contactInfo.companyName} • {contactInfo.website} • {contactInfo.phone}</span>
           <span>
             Page {pageNumber} {totalPages ? `of ${totalPages}` : ''}
           </span>

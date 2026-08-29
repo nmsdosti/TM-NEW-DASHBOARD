@@ -1,5 +1,6 @@
 import React from 'react';
 import { TMLogoEmblem } from '@/components/dashboard/TMIndustrialLogo';
+import { useContactInfo } from '@/lib/contactStore';
 import {
   ShieldCheck,
   Activity,
@@ -44,6 +45,7 @@ export const ReportCoverPage: React.FC<ReportCoverPageProps> = ({
   pageNumber = 1,
   totalPages,
 }) => {
+  const { contactInfo } = useContactInfo();
   const healthIndex = totalEquipment > 0 ? Math.round((normalCount / totalEquipment) * 100) : 100;
 
   return (
@@ -256,8 +258,9 @@ export const ReportCoverPage: React.FC<ReportCoverPageProps> = ({
           <div>
             <span className="text-[10px] uppercase font-bold text-slate-500 block">Report Prepared By:</span>
             <p className="font-bold text-slate-900 mt-1">{preparedBy}</p>
-            <p className="text-[11px] text-slate-600">TM INDUSTRIAL SOLUTION • Diagnostic Engineering</p>
-            <div className="mt-4 border-b border-dashed border-slate-400 w-44"></div>
+            <p className="text-[11px] text-slate-600">{contactInfo.companyName} • Diagnostic Engineering</p>
+            <p className="text-[10px] text-slate-500 font-medium">Email: {contactInfo.email} • Phone: +91 {contactInfo.phone}</p>
+            <div className="mt-3 border-b border-dashed border-slate-400 w-44"></div>
             <span className="text-[9px] text-slate-400 mt-0.5 block">Authorized Signature & Stamp</span>
           </div>
 
@@ -265,13 +268,14 @@ export const ReportCoverPage: React.FC<ReportCoverPageProps> = ({
             <span className="text-[10px] uppercase font-bold text-slate-500 block">Report Verified & Accepted By:</span>
             <p className="font-bold text-slate-900 mt-1">{reviewedBy}</p>
             <p className="text-[11px] text-slate-600">{clientName} • Plant Engineering Department</p>
-            <div className="mt-4 border-b border-dashed border-slate-400 w-44 ml-auto"></div>
+            <p className="text-[10px] text-slate-500 font-medium">Website: {contactInfo.website}</p>
+            <div className="mt-3 border-b border-dashed border-slate-400 w-44 ml-auto"></div>
             <span className="text-[9px] text-slate-400 mt-0.5 block">Client Maintenance Head Signature</span>
           </div>
         </div>
 
         <div className="mt-4 pt-2 border-t border-slate-200 flex items-center justify-between text-[10px] text-slate-400">
-          <span>TM Industrial Solution • Vibration Diagnostics & Reliability Engineering</span>
+          <span>{contactInfo.companyName} • {contactInfo.website} • {contactInfo.phone}</span>
           <span>
             Page {pageNumber} {totalPages ? `of ${totalPages}` : ''}
           </span>

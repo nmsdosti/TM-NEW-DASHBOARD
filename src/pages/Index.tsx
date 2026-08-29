@@ -7,6 +7,9 @@ import { EquipmentTable } from '@/components/dashboard/EquipmentTable';
 import { EquipmentDetailDialog } from '@/components/dashboard/EquipmentDetailDialog';
 import { IsoGuidelineCard } from '@/components/dashboard/IsoGuidelineCard';
 import { ReportDownloadDialog } from '@/components/dashboard/ReportDownloadDialog';
+import { ContactUsDialog } from '@/components/dashboard/ContactUsDialog';
+import { TMLogoEmblem } from '@/components/dashboard/TMIndustrialLogo';
+import { useContactInfo } from '@/lib/contactStore';
 import { MachinesView } from '@/pages/MachinesView';
 import {
   VibrationData,
@@ -33,7 +36,14 @@ import {
   Layers,
   FileText,
   Download,
+  Phone,
+  Mail,
+  Globe,
+  MapPin,
+  ExternalLink,
+  PhoneCall,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -53,6 +63,9 @@ const Index = () => {
   // Navigation: Clean 2-tab view (Dashboard & Machines)
   const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
 
+  // Contact Info
+  const { contactInfo } = useContactInfo();
+
   // State
   const [data, setData] = useState<VibrationData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,6 +73,7 @@ const Index = () => {
   const [selectedEquipmentName, setSelectedEquipmentName] = useState<string | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
 
   // Filters
   const [conditionFilter, setConditionFilter] = useState<'Normal' | 'Alert' | 'Alarm' | null>(null);
@@ -191,7 +205,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-100 pb-16 md:pb-6">
-      {/* Top Header with TM Industrial Solution Branding, Live Auto-Sync, Report Download & Notifications Bell */}
+      {/* Top Header with TM Industrial Solution Branding, Live Auto-Sync, Contact Us, Report Download & Notifications Bell */}
       <HeaderNav
         currentTab={currentTab}
         onSelectTab={setCurrentTab}
@@ -199,6 +213,7 @@ const Index = () => {
         notifications={notifications}
         onSelectEquipment={handleSelectEquipmentByName}
         onOpenReport={() => setIsReportDialogOpen(true)}
+        onOpenContact={() => setIsContactDialogOpen(true)}
         lastUpdatedTime={lastUpdated}
       />
 
@@ -458,6 +473,86 @@ const Index = () => {
             onSelectEquipment={handleSelectEquipmentByName}
           />
         )}
+        {/* Dedicated Corporate Contact Footer */}
+        <footer className="mt-8 pt-6 pb-2 border-t border-slate-200 text-xs text-slate-600">
+          <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
+              <div className="flex items-center gap-3.5">
+                <TMLogoEmblem className="h-12 w-12 shadow-xs border border-red-700/40 rounded-sm shrink-0" />
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-extrabold text-sm sm:text-base text-slate-900 tracking-tight uppercase">
+                      {contactInfo.companyName}
+                    </span>
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold bg-red-50 text-red-700 border border-red-200 rounded">
+                      Reliability Engineering
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+                    {contactInfo.tagline}
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick Contact Links & Map Button */}
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <a
+                  href={`tel:${contactInfo.phone}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold text-xs transition-colors"
+                >
+                  <Phone className="h-3.5 w-3.5 text-emerald-600" />
+                  <span>{contactInfo.phone}</span>
+                </a>
+
+                <a
+                  href={`mailto:${contactInfo.email}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold text-xs transition-colors"
+                >
+                  <Mail className="h-3.5 w-3.5 text-blue-600" />
+                  <span className="hidden sm:inline">{contactInfo.email}</span>
+                  <span className="sm:hidden">Email</span>
+                </a>
+
+                <a
+                  href={contactInfo.websiteUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold text-xs transition-colors"
+                >
+                  <Globe className="h-3.5 w-3.5 text-purple-600" />
+                  <span>{contactInfo.website}</span>
+                  <ExternalLink className="h-3 w-3 text-slate-400" />
+                </a>
+
+                <a
+                  href={contactInfo.mapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs transition-colors"
+                >
+                  <MapPin className="h-3.5 w-3.5 text-red-600" />
+                  <span>Google Maps</span>
+                  <ExternalLink className="h-3 w-3 text-red-500" />
+                </a>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsContactDialogOpen(true)}
+                  className="h-8 px-3 text-xs font-bold border-slate-300 bg-slate-900 hover:bg-slate-800 text-white"
+                >
+                  <PhoneCall className="h-3.5 w-3.5 mr-1 text-red-400" />
+                  <span>Contact Us</span>
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-400">
+              <span>© {new Date().getFullYear()} {contactInfo.companyName}. All Rights Reserved. ISO 18436 & ASNT Category Certified.</span>
+              <span>Client Site: <strong>{DEFAULT_SETTINGS.siteName}</strong></span>
+            </div>
+          </div>
+        </footer>
       </main>
 
       {/* Equipment Detailed Modal Dialog (Historical charts, 4-point matrix, recommendations) */}
@@ -473,6 +568,12 @@ const Index = () => {
         onOpenChange={setIsReportDialogOpen}
         data={data}
         siteName={DEFAULT_SETTINGS.siteName}
+      />
+
+      {/* Contact Us & Details Update Modal */}
+      <ContactUsDialog
+        open={isContactDialogOpen}
+        onOpenChange={setIsContactDialogOpen}
       />
     </div>
   );

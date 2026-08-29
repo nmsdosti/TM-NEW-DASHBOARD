@@ -10,6 +10,7 @@ import {
   MapPin,
   ShieldAlert,
   Download,
+  PhoneCall,
 } from 'lucide-react';
 
 export type NavTab = 'dashboard' | 'machines';
@@ -21,6 +22,7 @@ interface HeaderNavProps {
   notifications: AppNotification[];
   onSelectEquipment?: (equipmentName: string) => void;
   onOpenReport?: () => void;
+  onOpenContact?: () => void;
   lastUpdatedTime?: string;
   onScrollToBadActors?: () => void;
 }
@@ -32,6 +34,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   notifications,
   onSelectEquipment,
   onOpenReport,
+  onOpenContact,
   lastUpdatedTime,
   onScrollToBadActors,
 }) => {
@@ -51,7 +54,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
               <div className="hidden lg:flex items-center gap-2 pl-4 border-l border-slate-200">
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800">
-                  <MapPin className="h-3.5 w-3.5 text-blue-600" />
+                  <MapPin className="h-3.5 w-3.5 text-red-600" />
                   <span>{siteName}</span>
                 </div>
               </div>
@@ -79,8 +82,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               })}
             </nav>
 
-            {/* Right: Auto-Sync status + Report Download + Notification Bell */}
-            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            {/* Right: Auto-Sync status + Contact Us + Report Download + Notification Bell */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
               {/* Auto Sync Indicator (Desktop) */}
               <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-[11px] font-semibold text-emerald-800">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -89,6 +92,20 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   <span className="text-emerald-700 font-normal">({lastUpdatedTime})</span>
                 )}
               </div>
+
+              {/* Small "Contact Us" Button */}
+              {onOpenContact && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onOpenContact}
+                  className="h-8 sm:h-9 px-2.5 sm:px-3 text-xs font-bold border-red-200 bg-red-50/70 hover:bg-red-100 text-red-700 shadow-xs transition-colors"
+                  title="View / Update TM Industrial Solution Contact Details & Google Maps"
+                >
+                  <PhoneCall className="h-3.5 w-3.5 mr-1.5 text-red-600" />
+                  <span>Contact Us</span>
+                </Button>
+              )}
 
               {/* Download Report Button (Desktop & Tablet) */}
               {onOpenReport && (
@@ -118,13 +135,13 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         {/* Tab 1: Dashboard */}
         <button
           onClick={() => onSelectTab('dashboard')}
-          className={`flex flex-col items-center justify-center py-1 px-3 rounded-lg text-[10px] font-bold transition-all ${
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-lg text-[10px] font-bold transition-all ${
             currentTab === 'dashboard'
               ? 'text-blue-600 bg-blue-50/80 font-extrabold'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          <LayoutDashboard className={`h-5 w-5 mb-0.5 ${currentTab === 'dashboard' ? 'text-blue-600' : 'text-slate-400'}`} />
+          <LayoutDashboard className={`h-4.5 w-4.5 mb-0.5 ${currentTab === 'dashboard' ? 'text-blue-600' : 'text-slate-400'}`} />
           <span>Dashboard</span>
         </button>
 
@@ -142,32 +159,43 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               el?.scrollIntoView({ behavior: 'smooth' });
             }
           }}
-          className="flex flex-col items-center justify-center py-1 px-3 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition-all"
+          className="flex flex-col items-center justify-center py-1 px-2.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition-all"
         >
-          <ShieldAlert className="h-5 w-5 mb-0.5 text-red-500" />
+          <ShieldAlert className="h-4.5 w-4.5 mb-0.5 text-red-500" />
           <span>Bad Actors</span>
         </button>
 
         {/* Tab 3: Machine Matrix */}
         <button
           onClick={() => onSelectTab('machines')}
-          className={`flex flex-col items-center justify-center py-1 px-3 rounded-lg text-[10px] font-bold transition-all ${
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-lg text-[10px] font-bold transition-all ${
             currentTab === 'machines'
               ? 'text-blue-600 bg-blue-50/80 font-extrabold'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          <Cpu className={`h-5 w-5 mb-0.5 ${currentTab === 'machines' ? 'text-blue-600' : 'text-slate-400'}`} />
+          <Cpu className={`h-4.5 w-4.5 mb-0.5 ${currentTab === 'machines' ? 'text-blue-600' : 'text-slate-400'}`} />
           <span>Matrix</span>
         </button>
 
-        {/* Tab 4: PDF Report Modal Trigger */}
+        {/* Tab 4: Contact Us Trigger */}
+        {onOpenContact && (
+          <button
+            onClick={onOpenContact}
+            className="flex flex-col items-center justify-center py-1 px-2.5 rounded-lg text-[10px] font-bold text-red-600 hover:text-red-800 transition-all"
+          >
+            <PhoneCall className="h-4.5 w-4.5 mb-0.5 text-red-600" />
+            <span>Contact</span>
+          </button>
+        )}
+
+        {/* Tab 5: PDF Report Modal Trigger */}
         {onOpenReport && (
           <button
             onClick={onOpenReport}
-            className="flex flex-col items-center justify-center py-1 px-3 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition-all"
+            className="flex flex-col items-center justify-center py-1 px-2.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition-all"
           >
-            <FileText className="h-5 w-5 mb-0.5 text-blue-600" />
+            <FileText className="h-4.5 w-4.5 mb-0.5 text-blue-600" />
             <span>PDF Report</span>
           </button>
         )}
