@@ -100,7 +100,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   size="sm"
                   onClick={onOpenContact}
                   className="h-8 sm:h-9 px-2.5 sm:px-3 text-xs font-bold border-red-200 bg-red-50/70 hover:bg-red-100 text-red-700 shadow-xs transition-colors"
-                  title="View / Update TM Industrial Solution Contact Details & Google Maps"
+                  title="View TM Industrial Solution Contact Details & Google Maps"
                 >
                   <PhoneCall className="h-3.5 w-3.5 mr-1.5 text-red-600" />
                   <span>Contact Us</span>
