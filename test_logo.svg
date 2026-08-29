@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Red background container with border -->
+  <rect width="200" height="200" fill="#B91C1C" />
+  
+  <!-- White negative spaces for 't' and 'm' -->
+  
+  <!-- 't' top-left white space -->
+  <rect x="16" y="16" width="32" height="52" fill="#F8F9FA" />
+  
+  <!-- 't' lower-left white space -->
+  <rect x="16" y="78" width="64" height="106" fill="#F8F9FA" />
+  
+  <!-- 't' red inner line / stroke details -->
+  <!-- crossbar & stem of 't' -->
+  <path d="M16 78 H80 M48 78 V155" stroke="#B91C1C" stroke-width="4" stroke-linecap="square" />
+  
+  <!-- 'm' white space block -->
+  <rect x="84" y="16" width="100" height="168" fill="#F8F9FA" />
+  
+  <!-- 'm' vertical red divider lines (creating 3 columns) -->
+  <line x1="117" y1="46" x2="117" y2="184" stroke="#B91C1C" stroke-width="4" stroke-linecap="square" />
+  <line x1="151" y1="46" x2="151" y2="184" stroke="#B91C1C" stroke-width="4" stroke-linecap="square" />
+</svg>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { TMLogoEmblem } from '@/components/dashboard/TMIndustrialLogo';
 import {
   ShieldCheck,
   Activity,
@@ -54,20 +55,18 @@ export const ReportCoverPage: React.FC<ReportCoverPageProps> = ({
       <div>
         <div className="flex items-start justify-between border-b-2 border-slate-900 pb-5 pt-2">
           <div className="flex items-center gap-3.5">
-            {/* Custom High-Precision Brand Icon */}
-            <div className="h-14 w-14 rounded-xl bg-blue-700 text-white flex items-center justify-center shadow-md border border-blue-800">
-              <Activity className="h-8 w-8 text-white stroke-[2.5]" />
-            </div>
+            {/* Official TM Monogram Brand Emblem */}
+            <TMLogoEmblem className="h-14 w-14 shadow-sm border border-red-800" />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">
                   TM INDUSTRIAL SOLUTION
                 </h1>
-                <span className="bg-blue-100 text-blue-800 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide">
+                <span className="bg-red-100 text-red-800 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide">
                   ISO Certified
                 </span>
               </div>
-              <p className="text-xs font-semibold text-blue-700 tracking-wider uppercase mt-0.5">
+              <p className="text-xs font-semibold text-red-700 tracking-wider uppercase mt-0.5">
                 Vibration Diagnostics • Laser Alignment • Predictive Maintenance & Reliability Engineering
               </p>
               <p className="text-[11px] text-slate-500 font-medium">

@@ -70,9 +70,8 @@ export const MonthlyColumnChart: React.FC<MonthlyColumnChartProps> = ({
 
   // Custom top label renderer to show total number of unique equipment ON TOP of each column stack
   const renderTopTotalLabel = (props: any) => {
-    const { x, y, width, index } = props;
-    const item = chartData[index];
-    if (!item || item.totalUnique === 0) return null;
+    const { x, y, width, value } = props;
+    if (value === undefined || value === null || isNaN(value)) return null;
 
     return (
       <g>
@@ -83,19 +82,20 @@ export const MonthlyColumnChart: React.FC<MonthlyColumnChartProps> = ({
           width={28}
           height={16}
           rx={4}
-          fill="hsl(var(--card))"
-          stroke="hsl(var(--primary) / 0.3)"
+          fill="#ffffff"
+          stroke="#94a3b8"
           strokeWidth={1}
         />
         <text
           x={x + width / 2}
           y={y - 9}
-          fill="hsl(var(--foreground))"
+          fill="#0f172a"
           textAnchor="middle"
           dominantBaseline="middle"
-          className="text-[10px] font-bold"
+          fontSize={10}
+          fontWeight={800}
         >
-          {item.totalUnique}
+          {value}
         </text>
       </g>
     );
@@ -115,8 +115,8 @@ export const MonthlyColumnChart: React.FC<MonthlyColumnChartProps> = ({
             </CardDescription>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <Calendar className="h-3.5 w-3.5" />
+            <span className="flex items-center gap-1 text-muted-foreground font-semibold">
+              <Calendar className="h-3.5 w-3.5 text-blue-600" />
               {chartData.length} Survey Periods
             </span>
           </div>
@@ -135,23 +135,29 @@ export const MonthlyColumnChart: React.FC<MonthlyColumnChartProps> = ({
                 data={chartData}
                 margin={{ top: 28, right: 12, left: -15, bottom: 5 }}
                 barSize={38}
+                onClick={(e: any) => {
+                  if (e && e.activePayload && e.activePayload.length && onSelectMonth) {
+                    const mKey = e.activePayload[0].payload.monthKey;
+                    onSelectMonth(selectedMonth === mKey ? null : mKey);
+                  }
+                }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/40" />
                 <XAxis
                   dataKey="month"
                   className="text-xs"
-                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                  tick={{ fill: '#475569', fontSize: 11, fontWeight: 600 }}
                   tickLine={false}
-                  axisLine={{ stroke: 'hsl(var(--border))' }}
+                  axisLine={{ stroke: '#cbd5e1' }}
                 />
                 <YAxis
                   className="text-xs"
-                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                  tick={{ fill: '#64748b', fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
                   allowDecimals={false}
                 />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted) / 0.3)' }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(241, 245, 249, 0.6)' }} />
                 <Legend
                   verticalAlign="top"
                   align="right"
@@ -179,13 +185,23 @@ export const MonthlyColumnChart: React.FC<MonthlyColumnChartProps> = ({
                   radius={[0, 0, 0, 0]}
                 />
 
-                {/* Alarm Segment (Top of stack gets the rounded top and the Total Count Label on top) */}
+                {/* Alarm Segment */}
                 <Bar
                   dataKey="Alarm"
                   stackId="conditionStack"
                   fill="#ef4444"
                   name="Alarm"
                   radius={[4, 4, 0, 0]}
+                />
+
+                {/* Transparent Total Bar to host top count badge accurately across all 8 periods */}
+                <Bar
+                  dataKey="totalUnique"
+                  fill="none"
+                  stroke="none"
+                  legendType="none"
+                  tooltipType="none"
+                  isAnimationActive={false}
                   label={renderTopTotalLabel}
                 />
               </BarChart>

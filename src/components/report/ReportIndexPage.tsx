@@ -1,7 +1,8 @@
 import React from 'react';
 import { VibrationData } from '@/types/vibration';
 import { getRecordPeakValues, normalizeCondition } from '@/lib/vibrationUtils';
-import { Activity, BookOpen, Layers, CheckCircle2, AlertTriangle, AlertOctagon } from 'lucide-react';
+import { TMLogoEmblem } from '@/components/dashboard/TMIndustrialLogo';
+import { BookOpen, Layers, CheckCircle2, AlertTriangle, AlertOctagon } from 'lucide-react';
 
 interface ReportIndexPageProps {
   equipmentList: VibrationData[];
@@ -37,14 +38,12 @@ export const ReportIndexPage: React.FC<ReportIndexPageProps> = ({
       <div>
         <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-lg bg-blue-700 text-white flex items-center justify-center font-black">
-              <Activity className="h-5 w-5 text-white" />
-            </div>
+            <TMLogoEmblem className="h-9 w-9 shadow-xs" />
             <div>
               <span className="text-base font-black tracking-tight text-slate-900 uppercase">
                 TM INDUSTRIAL SOLUTION
               </span>
-              <span className="text-xs font-semibold text-blue-700 block">
+              <span className="text-xs font-semibold text-red-700 block">
                 Condition Monitoring & Reliability Engineering
               </span>
             </div>

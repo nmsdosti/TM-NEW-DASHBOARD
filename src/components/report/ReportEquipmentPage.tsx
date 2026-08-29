@@ -2,6 +2,7 @@ import React from 'react';
 import { VibrationData } from '@/types/vibration';
 import { getRecordPeakValues, normalizeCondition } from '@/lib/vibrationUtils';
 import { EquipmentTrendSvgChart } from './EquipmentTrendSvgChart';
+import { TMLogoEmblem } from '@/components/dashboard/TMIndustrialLogo';
 import {
   Activity,
   CheckCircle2,
@@ -115,14 +116,12 @@ export const ReportEquipmentPage: React.FC<ReportEquipmentPageProps> = ({
       <div>
         <div className="flex items-center justify-between border-b-2 border-slate-900 pb-2.5">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded bg-blue-700 text-white flex items-center justify-center font-bold">
-              <Activity className="h-4.5 w-4.5 text-white" />
-            </div>
+            <TMLogoEmblem className="h-8 w-8 shadow-xs" />
             <div>
               <span className="text-sm font-black tracking-tight text-slate-900 uppercase">
                 TM INDUSTRIAL SOLUTION
               </span>
-              <span className="text-[10px] text-blue-700 font-bold block">
+              <span className="text-[10px] text-red-700 font-bold block">
                 Equipment Diagnostic Assessment Sheet
               </span>
             </div>

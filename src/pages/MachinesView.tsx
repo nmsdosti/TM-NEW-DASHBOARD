@@ -5,6 +5,7 @@ import {
   normalizeCondition,
   getConditionTheme,
   getRecordPeakValues,
+  parseDateInfo,
 } from '@/lib/vibrationUtils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -64,16 +65,15 @@ export const MachinesView: React.FC<MachinesViewProps> = ({
     const months = new Set<string>();
     data.forEach((item) => {
       if (!item.date) return;
-      const date = new Date(item.date);
-      if (!isNaN(date.getTime())) {
-        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        months.add(monthKey);
+      const info = parseDateInfo(item.date);
+      if (info.monthKey) {
+        months.add(info.monthKey);
       }
     });
     return Array.from(months).sort().reverse();
   }, [data]);
 
-  // Format month key for human readability (e.g. 2024-08 -> August 2024)
+  // Format month key for human readability (e.g. 2024-10 -> October 2024)
   const formatMonthLabel = (mKey: string) => {
     try {
       const [year, month] = mKey.split('-');
@@ -92,13 +92,11 @@ export const MachinesView: React.FC<MachinesViewProps> = ({
     if (selectedMonth === 'all') {
       return data;
     }
-    // Specific month selected (e.g., '2024-08')
+    // Specific month selected (e.g., '2024-10')
     const inMonth = data.filter((item) => {
       if (!item.date) return false;
-      const date = new Date(item.date);
-      if (isNaN(date.getTime())) return false;
-      const itemMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      return itemMonth === selectedMonth;
+      const info = parseDateInfo(item.date);
+      return info.monthKey === selectedMonth;
     });
 
     // If multiple entries for same equipment in this month, get latest for each

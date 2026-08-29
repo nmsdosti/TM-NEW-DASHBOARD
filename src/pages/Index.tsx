@@ -63,6 +63,7 @@ const Index = () => {
 
   // Filters
   const [conditionFilter, setConditionFilter] = useState<'Normal' | 'Alert' | 'Alarm' | null>(null);
+  const [selectedSurveyMonth, setSelectedSurveyMonth] = useState<string | null>(null);
 
   // Notifications
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -189,7 +190,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-100">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-100 pb-16 md:pb-6">
       {/* Top Header with TM Industrial Solution Branding, Live Auto-Sync, Report Download & Notifications Bell */}
       <HeaderNav
         currentTab={currentTab}
@@ -201,29 +202,29 @@ const Index = () => {
         lastUpdatedTime={lastUpdated}
       />
 
-      <main className="container mx-auto px-4 sm:px-6 py-6 space-y-6 flex-1">
+      <main className="container mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 flex-1">
         {/* TAB 1: MAIN DASHBOARD */}
         {currentTab === 'dashboard' && (
-          <div className="space-y-6 animate-fade-in">
-            {/* Top KPI Metric Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+          <div className="space-y-4 sm:space-y-6 animate-fade-in">
+            {/* Top KPI Metric Cards (2x2 on Mobile, 4x1 on Desktop) */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
               {/* Total Monitored Assets */}
               <Card className="border-slate-200 bg-white hover:border-blue-300 transition-colors shadow-xs">
-                <CardContent className="p-4 flex items-center justify-between">
+                <CardContent className="p-3 sm:p-4 flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                      Monitored Assets
+                    <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      Total Assets
                     </span>
-                    <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-0.5">
+                    <div className="text-xl sm:text-3xl font-black text-slate-900 mt-0.5">
                       {uniqueStats.total}
                     </div>
-                    <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5 font-medium">
-                      <Layers className="h-3 w-3 text-blue-600" />
-                      100% Unique Units
+                    <span className="text-[9px] sm:text-[10px] text-slate-500 flex items-center gap-1 mt-0.5 font-medium">
+                      <Layers className="h-3 w-3 text-blue-600 shrink-0" />
+                      <span>Unique Units</span>
                     </span>
                   </div>
-                  <div className="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center">
-                    <Cpu className="h-6 w-6" />
+                  <div className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center shrink-0">
+                    <Cpu className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
                 </CardContent>
               </Card>
@@ -237,23 +238,24 @@ const Index = () => {
                 }`}
                 onClick={() => setConditionFilter(conditionFilter === 'Normal' ? null : 'Normal')}
               >
-                <CardContent className="p-4 flex items-center justify-between">
+                <CardContent className="p-3 sm:p-4 flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1">
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Normal
+                    <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1">
+                      <ShieldCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-emerald-600 shrink-0" />
+                      <span>Normal</span>
                     </span>
-                    <div className="text-2xl sm:text-3xl font-black text-emerald-700 mt-0.5">
+                    <div className="text-xl sm:text-3xl font-black text-emerald-700 mt-0.5">
                       {uniqueStats.normal}
                     </div>
-                    <span className="text-[10px] text-slate-500 font-medium">
+                    <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium">
                       {uniqueStats.total
                         ? Math.round((uniqueStats.normal / uniqueStats.total) * 100)
                         : 0}
-                      % Operational
+                      % Health
                     </span>
                   </div>
-                  <div className="h-11 w-11 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center">
-                    <CheckCircle className="h-6 w-6" />
+                  <div className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
+                    <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
                 </CardContent>
               </Card>
@@ -267,23 +269,24 @@ const Index = () => {
                 }`}
                 onClick={() => setConditionFilter(conditionFilter === 'Alert' ? null : 'Alert')}
               >
-                <CardContent className="p-4 flex items-center justify-between">
+                <CardContent className="p-3 sm:p-4 flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1">
-                      <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> Alert State
+                    <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-500 shrink-0" />
+                      <span>Alert</span>
                     </span>
-                    <div className="text-2xl sm:text-3xl font-black text-amber-700 mt-0.5">
+                    <div className="text-xl sm:text-3xl font-black text-amber-700 mt-0.5">
                       {uniqueStats.alert}
                     </div>
-                    <span className="text-[10px] text-slate-500 font-medium">
+                    <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium">
                       {uniqueStats.total
                         ? Math.round((uniqueStats.alert / uniqueStats.total) * 100)
                         : 0}
-                      % Watchlist
+                      % Watch
                     </span>
                   </div>
-                  <div className="h-11 w-11 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center">
-                    <AlertTriangle className="h-6 w-6" />
+                  <div className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
                 </CardContent>
               </Card>
@@ -297,42 +300,43 @@ const Index = () => {
                 }`}
                 onClick={() => setConditionFilter(conditionFilter === 'Alarm' ? null : 'Alarm')}
               >
-                <CardContent className="p-4 flex items-center justify-between">
+                <CardContent className="p-3 sm:p-4 flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-red-700 flex items-center gap-1">
-                      <AlertOctagon className="h-3.5 w-3.5 text-red-600" /> Alarm (Critical)
+                    <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-red-700 flex items-center gap-1">
+                      <AlertOctagon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-red-600 shrink-0" />
+                      <span>Critical</span>
                     </span>
-                    <div className="text-2xl sm:text-3xl font-black text-red-700 mt-0.5">
+                    <div className="text-xl sm:text-3xl font-black text-red-700 mt-0.5">
                       {uniqueStats.alarm}
                     </div>
-                    <span className="text-[10px] text-red-600 font-bold">Action Required</span>
+                    <span className="text-[9px] sm:text-[10px] text-red-600 font-bold">Action Needed</span>
                   </div>
-                  <div className="h-11 w-11 rounded-xl bg-red-50 text-red-600 border border-red-200 flex items-center justify-center">
-                    <AlertOctagon className="h-6 w-6 animate-pulse" />
+                  <div className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl bg-red-50 text-red-600 border border-red-200 flex items-center justify-center shrink-0">
+                    <AlertOctagon className="h-5 w-5 sm:h-6 sm:w-6 animate-pulse" />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* TM Industrial Diagnostic Intelligence & Thoughts */}
+            {/* TM Industrial Diagnostic Intelligence & Health Summary */}
             <Card className="border-slate-200 bg-gradient-to-r from-white via-white to-blue-50/40 shadow-xs">
-              <CardContent className="p-4 sm:p-5">
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                  <div className="flex items-start gap-3.5">
-                    <div className="p-2.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 shrink-0 mt-0.5">
-                      <Sparkles className="h-5 w-5" />
+              <CardContent className="p-3.5 sm:p-5">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 sm:gap-4">
+                  <div className="flex items-start gap-2.5 sm:gap-3.5">
+                    <div className="p-2 sm:p-2.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 shrink-0 mt-0.5">
+                      <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm sm:text-base font-bold text-slate-900">
-                          TM Industrial Solution Diagnostic Intelligence & Health Summary
+                    <div className="space-y-1.5 min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <h3 className="text-xs sm:text-base font-bold text-slate-900">
+                          TM Industrial Solution Diagnostic Intelligence
                         </h3>
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                        <span className="text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
                           ISO 10816-3 Audit
                         </span>
                       </div>
                       <p className="text-xs text-slate-600 leading-relaxed max-w-4xl">
-                        Plant vibration health index stands at{' '}
+                        Plant vibration health index is{' '}
                         <strong className="text-slate-900">
                           {uniqueStats.total
                             ? Math.round((uniqueStats.normal / uniqueStats.total) * 100)
@@ -340,30 +344,27 @@ const Index = () => {
                           %
                         </strong>{' '}
                         normal baseline compliance across {uniqueStats.total} monitored units at{' '}
-                        <strong>{DEFAULT_SETTINGS.siteName}</strong>. Critical maintenance focus is concentrated in{' '}
+                        <strong>{DEFAULT_SETTINGS.siteName}</strong>. Focus is required on{' '}
                         <span className="font-bold text-red-700">{uniqueStats.alarm} Alarm</span> and{' '}
-                        <span className="font-bold text-amber-700">{uniqueStats.alert} Alert</span> assets.
-                        Primary fault patterns detected include{' '}
-                        <strong className="text-slate-900">High Bearing Envelop Acceleration (HVg &gt; 5.0g)</strong> indicating inner/outer race fatigue, along with{' '}
-                        <strong className="text-slate-900">1X/2X mechanical unbalance & misalignment</strong>.
+                        <span className="font-bold text-amber-700">{uniqueStats.alert} Alert</span> units.
                       </p>
 
                       <div className="flex flex-wrap items-center gap-2 pt-1">
-                        <div className="text-[11px] font-semibold text-slate-800 bg-slate-100 px-3 py-1 rounded-md border border-slate-200 flex items-center gap-1.5">
-                          <Activity className="h-3.5 w-3.5 text-blue-600" />
-                          <span>Top Critical Asset:</span>
-                          <strong className="text-red-700 font-bold">
+                        <div className="text-[10px] sm:text-[11px] font-semibold text-slate-800 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200 flex items-center gap-1.5">
+                          <Activity className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+                          <span>Top Priority:</span>
+                          <strong className="text-red-700 font-bold truncate max-w-[140px] sm:max-w-none">
                             {top10[0]?.equipmentName || 'Critical Pump'}
                           </strong>
-                          <span>({top10[0]?.peakVelocity.toFixed(2) || '4.80'} mm/s RMS)</span>
+                          <span className="hidden sm:inline">({top10[0]?.peakVelocity.toFixed(2) || '4.80'} mm/s)</span>
                         </div>
 
                         <button
                           onClick={() => setIsReportDialogOpen(true)}
-                          className="text-[11px] font-bold text-blue-700 hover:underline flex items-center gap-1 ml-auto bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200"
+                          className="text-[10px] sm:text-[11px] font-bold text-blue-700 hover:underline flex items-center gap-1 ml-auto bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200"
                         >
-                          <FileText className="h-3.5 w-3.5" />
-                          Generate Full Condition Audit Report
+                          <FileText className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                          <span>Audit Report</span>
                         </button>
                       </div>
                     </div>
@@ -373,7 +374,7 @@ const Index = () => {
             </Card>
 
             {/* REQUIREMENT 1 & 2: CHARTS ROW */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
               {/* 1. PIE CHART: Total unique equipment with their last condition (Normal, Alert, Alarm) */}
               <div className="lg:col-span-5">
                 <UniqueConditionPieChart
@@ -385,42 +386,61 @@ const Index = () => {
 
               {/* 2. COLUMN CHART: Month-year wise vertical column, total unique count on top, 3 colors */}
               <div className="lg:col-span-7">
-                <MonthlyColumnChart data={data} />
+                <MonthlyColumnChart
+                  data={data}
+                  selectedMonth={selectedSurveyMonth}
+                  onSelectMonth={(m) => setSelectedSurveyMonth(m)}
+                />
               </div>
             </div>
 
-            {/* REQUIREMENT 3: TOTAL 10 DEFENDER (Top 10 equipment which have the most problems) */}
+            {/* REQUIREMENT 3: TOTAL 10 DEFENDER (Top 10 Bad Actors - simplified & compact) */}
             <TopTenDefenders
               data={data}
               onSelectEquipment={handleSelectEquipmentByName}
             />
 
-            {/* REQUIREMENT 7: Modernized Equipment Vibration Matrix */}
+            {/* REQUIREMENT 7: Equipment Vibration Matrix */}
             <div className="space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900">
-                    Equipment Vibration Matrix ({tableData.length} Assets)
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                    Equipment Vibration Matrix
                   </h3>
                   <p className="text-xs text-slate-500">
                     {conditionFilter
                       ? `Filtered by ${conditionFilter} Condition`
-                      : 'All machinery sorted by peak vibration severity and inspection data'}
+                      : selectedSurveyMonth && selectedSurveyMonth !== 'latest' && selectedSurveyMonth !== 'all'
+                      ? `Displaying ${selectedSurveyMonth} Survey Cycle`
+                      : 'Machinery vibration severity, bearing acceleration & observations across all survey cycles'}
                   </p>
                 </div>
-                {conditionFilter && (
-                  <button
-                    onClick={() => setConditionFilter(null)}
-                    className="text-xs text-blue-600 font-bold hover:underline"
-                  >
-                    Clear Filter ({conditionFilter})
-                  </button>
-                )}
+                <div className="flex items-center gap-2">
+                  {conditionFilter && (
+                    <button
+                      onClick={() => setConditionFilter(null)}
+                      className="text-xs text-blue-600 font-bold hover:underline self-start sm:self-auto"
+                    >
+                      Clear Condition ({conditionFilter})
+                    </button>
+                  )}
+                  {selectedSurveyMonth && selectedSurveyMonth !== 'latest' && (
+                    <button
+                      onClick={() => setSelectedSurveyMonth('latest')}
+                      className="text-xs text-slate-600 font-semibold hover:underline self-start sm:self-auto"
+                    >
+                      Reset Survey (Latest)
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="rounded-xl overflow-hidden border border-slate-200 bg-white shadow-xs">
                 <EquipmentTable
-                  data={tableData}
+                  data={data}
+                  externalConditionFilter={conditionFilter || undefined}
+                  externalMonthFilter={selectedSurveyMonth}
+                  onMonthChange={(m) => setSelectedSurveyMonth(m)}
                   onEquipmentClick={(item) => handleSelectEquipmentByName(item.equipmentName)}
                 />
               </div>

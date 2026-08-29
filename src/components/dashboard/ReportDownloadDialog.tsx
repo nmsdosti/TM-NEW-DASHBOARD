@@ -21,6 +21,7 @@ import { ReportCoverPage } from '../report/ReportCoverPage';
 import { ReportIndexPage } from '../report/ReportIndexPage';
 import { ReportEquipmentPage } from '../report/ReportEquipmentPage';
 import { ReportServicesPage } from '../report/ReportServicesPage';
+import { TMLogoEmblem } from './TMIndustrialLogo';
 import {
   Download,
   FileText,
@@ -196,13 +197,11 @@ export const ReportDownloadDialog: React.FC<ReportDownloadDialogProps> = ({
         <div className="no-print sticky top-0 z-30 bg-white border-b border-slate-200 p-5 shadow-sm space-y-4">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-blue-700 text-white shadow-sm">
-                <FileText className="h-6 w-6" />
-              </div>
+              <TMLogoEmblem className="h-11 w-11 shadow-sm" />
               <div>
                 <DialogTitle className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
                   Official Vibration Audit & Diagnostic Report
-                  <Badge variant="outline" className="bg-blue-50 text-blue-800 border-blue-200 font-bold text-[10px]">
+                  <Badge variant="outline" className="bg-red-50 text-red-800 border-red-200 font-bold text-[10px]">
                     Direct Customer PDF
                   </Badge>
                 </DialogTitle>

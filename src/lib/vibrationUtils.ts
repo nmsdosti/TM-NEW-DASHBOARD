@@ -6,6 +6,72 @@ import {
   WorkOrder,
 } from '@/types/vibration';
 
+export interface DateInfo {
+  timestamp: number;
+  monthKey: string; // "YYYY-MM"
+  monthLabel: string; // "Oct 2024"
+  formattedDate: string; // "DD/MM/YYYY"
+}
+
+/**
+ * Robust date parser supporting MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD, and standard formats
+ */
+export const parseDateInfo = (dateStr: string = ''): DateInfo => {
+  if (!dateStr) return { timestamp: 0, monthKey: '', monthLabel: '', formattedDate: '' };
+  const s = dateStr.trim();
+
+  const parts = s.split(/[-/.]/);
+  let year = 0;
+  let month = 0;
+  let day = 0;
+
+  if (parts.length === 3) {
+    if (parts[0].length === 4) {
+      // YYYY-MM-DD
+      year = parseInt(parts[0], 10);
+      month = parseInt(parts[1], 10);
+      day = parseInt(parts[2], 10);
+    } else if (parts[2].length === 4) {
+      // MM/DD/YYYY or DD/MM/YYYY
+      const p0 = parseInt(parts[0], 10);
+      const p1 = parseInt(parts[1], 10);
+      const p2 = parseInt(parts[2], 10);
+      if (p0 > 12) {
+        day = p0;
+        month = p1;
+        year = p2;
+      } else {
+        month = p0;
+        day = p1;
+        year = p2;
+      }
+    }
+  }
+
+  if (!year || !month) {
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      year = d.getFullYear();
+      month = d.getMonth() + 1;
+      day = d.getDate();
+    } else {
+      return { timestamp: 0, monthKey: '', monthLabel: '', formattedDate: s };
+    }
+  }
+
+  const dt = new Date(year, month - 1, day || 1);
+  const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+  const monthLabel = dt.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  const formattedDate = `${String(day || 1).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+
+  return {
+    timestamp: dt.getTime(),
+    monthKey,
+    monthLabel,
+    formattedDate,
+  };
+};
+
 /**
  * Normalizes raw condition text from the CSV into standard 'Normal' | 'Alert' | 'Alarm'
  */
@@ -68,8 +134,8 @@ export const getUniqueLatestEquipment = (data: VibrationData[]): VibrationData[]
     if (!existing) {
       map.set(item.equipmentName, item);
     } else {
-      const existingDate = new Date(existing.date).getTime() || 0;
-      const currentDate = new Date(item.date).getTime() || 0;
+      const existingDate = parseDateInfo(existing.date).timestamp || 0;
+      const currentDate = parseDateInfo(item.date).timestamp || 0;
       if (currentDate >= existingDate) {
         map.set(item.equipmentName, item);
       }
@@ -151,35 +217,43 @@ export const getRecordPeakValues = (item: VibrationData) => {
  * Vertical columns with 3 split condition colors and total unique equipment on top
  */
 export const getMonthlyColumnChartData = (data: VibrationData[]) => {
-  // Group by Month-Year string (e.g. "Jan 2026" or "01/2026")
-  const groups: Record<string, { monthKey: string; monthLabel: string; timestamp: number; itemsByEquipment: Map<string, VibrationData> }> = {};
+  const groups: Record<
+    string,
+    {
+      monthKey: string;
+      monthLabel: string;
+      timestamp: number;
+      itemsByEquipment: Map<string, VibrationData>;
+    }
+  > = {};
 
   data.forEach((item) => {
     if (!item.date) return;
-    const dateObj = new Date(item.date);
-    const validDate = !isNaN(dateObj.getTime()) ? dateObj : new Date();
-    
-    // Sortable key YYYY-MM
-    const sortKey = `${validDate.getFullYear()}-${String(validDate.getMonth() + 1).padStart(2, '0')}`;
-    const label = validDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    const dateInfo = parseDateInfo(item.date);
+    if (!dateInfo.monthKey) return;
 
-    if (!groups[sortKey]) {
-      groups[sortKey] = {
-        monthKey: sortKey,
-        monthLabel: label,
-        timestamp: validDate.getTime(),
+    if (!groups[dateInfo.monthKey]) {
+      groups[dateInfo.monthKey] = {
+        monthKey: dateInfo.monthKey,
+        monthLabel: dateInfo.monthLabel,
+        timestamp: dateInfo.timestamp,
         itemsByEquipment: new Map<string, VibrationData>(),
       };
     }
 
     // Keep the latest record for that equipment within the specific month
-    const existing = groups[sortKey].itemsByEquipment.get(item.equipmentName);
-    if (!existing || new Date(item.date).getTime() >= new Date(existing.date).getTime()) {
-      groups[sortKey].itemsByEquipment.set(item.equipmentName, item);
+    const existing = groups[dateInfo.monthKey].itemsByEquipment.get(item.equipmentName);
+    if (
+      !existing ||
+      parseDateInfo(item.date).timestamp >= parseDateInfo(existing.date).timestamp
+    ) {
+      groups[dateInfo.monthKey].itemsByEquipment.set(item.equipmentName, item);
     }
   });
 
-  const sortedGroups = Object.values(groups).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+  const sortedGroups = Object.values(groups).sort((a, b) =>
+    a.monthKey.localeCompare(b.monthKey)
+  );
 
   return sortedGroups.map((grp) => {
     let normalCount = 0;
@@ -223,7 +297,9 @@ export const calculateTopDefenders = (data: VibrationData[], limit = 10): Equipm
 
   equipGroups.forEach((records, equipmentName) => {
     // Sort latest first
-    const sorted = [...records].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const sorted = [...records].sort(
+      (a, b) => parseDateInfo(b.date).timestamp - parseDateInfo(a.date).timestamp
+    );
     const latest = sorted[0];
     const condition = normalizeCondition(latest.condition);
 

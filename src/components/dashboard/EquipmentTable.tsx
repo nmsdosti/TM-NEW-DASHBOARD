@@ -1,9 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { VibrationData } from '@/types/vibration';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getRecordPeakValues, normalizeCondition, getConditionTheme } from '@/lib/vibrationUtils';
+import {
+  getRecordPeakValues,
+  normalizeCondition,
+  getConditionTheme,
+  parseDateInfo,
+  getUniqueLatestEquipment,
+} from '@/lib/vibrationUtils';
 import {
   ArrowUpDown,
   ArrowUp,
@@ -34,6 +40,9 @@ import {
 interface EquipmentTableProps {
   data: VibrationData[];
   onEquipmentClick: (equipment: VibrationData) => void;
+  externalConditionFilter?: string;
+  externalMonthFilter?: string | null;
+  onMonthChange?: (month: string) => void;
 }
 
 type SortField = 'velocity' | 'accel' | 'condition' | 'date' | 'name';
@@ -42,58 +51,106 @@ type SortOrder = 'asc' | 'desc';
 export const EquipmentTable: React.FC<EquipmentTableProps> = ({
   data,
   onEquipmentClick,
+  externalConditionFilter,
+  externalMonthFilter,
+  onMonthChange,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState<string>('all');
+  const [selectedMonth, setSelectedMonth] = useState<string>(externalMonthFilter || 'latest');
   const [selectedArea, setSelectedArea] = useState<string>('all');
-  const [selectedCondition, setSelectedCondition] = useState<string>('all');
+  const [selectedCondition, setSelectedCondition] = useState<string>(externalConditionFilter || 'all');
   const [sortField, setSortField] = useState<SortField>('velocity');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Extract unique months from data
+  // Sync external condition filter if passed from parent
+  useEffect(() => {
+    if (externalConditionFilter) {
+      setSelectedCondition(externalConditionFilter);
+      setCurrentPage(1);
+    }
+  }, [externalConditionFilter]);
+
+  // Sync external month filter if passed from parent (e.g. clicking monthly chart)
+  useEffect(() => {
+    if (externalMonthFilter !== undefined) {
+      setSelectedMonth(externalMonthFilter || 'latest');
+      setCurrentPage(1);
+    }
+  }, [externalMonthFilter]);
+
+  // Extract unique survey months from dataset
   const availableMonths = useMemo(() => {
-    const months = new Set(
-      data.map((item) => {
-        const date = new Date(item.date);
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      })
+    const monthStatsMap = new Map<
+      string,
+      { monthKey: string; label: string; count: number; uniqueCount: number; equipmentSet: Set<string> }
+    >();
+
+    data.forEach((item) => {
+      if (!item.date) return;
+      const info = parseDateInfo(item.date);
+      if (!info.monthKey) return;
+
+      const existing = monthStatsMap.get(info.monthKey);
+      if (!existing) {
+        monthStatsMap.set(info.monthKey, {
+          monthKey: info.monthKey,
+          label: info.monthLabel,
+          count: 1,
+          uniqueCount: 1,
+          equipmentSet: new Set([item.equipmentName]),
+        });
+      } else {
+        existing.count += 1;
+        existing.equipmentSet.add(item.equipmentName);
+        existing.uniqueCount = existing.equipmentSet.size;
+      }
+    });
+
+    return Array.from(monthStatsMap.values()).sort((a, b) =>
+      b.monthKey.localeCompare(a.monthKey)
     );
-    return Array.from(months).sort().reverse();
   }, [data]);
 
-  // Extract unique areas
+  // Extract unique plant areas
   const availableAreas = useMemo(() => {
     const areas = new Set<string>();
     data.forEach((item) => item.area && areas.add(item.area));
     return Array.from(areas).sort();
   }, [data]);
 
+  // Base data scoped by selected Survey Month / Latest
+  const baseScopedData = useMemo(() => {
+    if (selectedMonth === 'latest') {
+      return getUniqueLatestEquipment(data);
+    }
+    if (selectedMonth === 'all') {
+      return data;
+    }
+    return data.filter((item) => {
+      const info = parseDateInfo(item.date);
+      return info.monthKey === selectedMonth;
+    });
+  }, [data, selectedMonth]);
+
   // Condition counts for status quick-toggle pills
   const conditionCounts = useMemo(() => {
     let normal = 0;
     let alert = 0;
     let alarm = 0;
-    data.forEach((item) => {
+    baseScopedData.forEach((item) => {
       const c = normalizeCondition(item.condition);
       if (c === 'Alarm') alarm++;
       else if (c === 'Alert') alert++;
       else normal++;
     });
-    return { all: data.length, normal, alert, alarm };
-  }, [data]);
+    return { all: baseScopedData.length, normal, alert, alarm };
+  }, [baseScopedData]);
 
   // Filter Data
   const filteredData = useMemo(() => {
-    return data.filter((item) => {
-      // Month
-      if (selectedMonth !== 'all') {
-        const date = new Date(item.date);
-        const itemMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        if (itemMonth !== selectedMonth) return false;
-      }
-
+    return baseScopedData.filter((item) => {
       // Area
       if (selectedArea !== 'all' && item.area !== selectedArea) {
         return false;
@@ -120,7 +177,7 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
 
       return true;
     });
-  }, [data, selectedMonth, selectedArea, selectedCondition, searchTerm]);
+  }, [baseScopedData, selectedArea, selectedCondition, searchTerm]);
 
   // Sort Data
   const sortedData = useMemo(() => {
@@ -145,8 +202,8 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
         valA = conditionPriority[normalizeCondition(a.condition).toLowerCase()] || 0;
         valB = conditionPriority[normalizeCondition(b.condition).toLowerCase()] || 0;
       } else if (sortField === 'date') {
-        valA = new Date(a.date).getTime();
-        valB = new Date(b.date).getTime();
+        valA = parseDateInfo(a.date).timestamp || 0;
+        valB = parseDateInfo(b.date).timestamp || 0;
       } else {
         valA = a.equipmentName;
         valB = b.equipmentName;
@@ -322,16 +379,19 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
               <select
                 value={selectedMonth}
                 onChange={(e) => {
-                  setSelectedMonth(e.target.value);
+                  const val = e.target.value;
+                  setSelectedMonth(val);
+                  if (onMonthChange) onMonthChange(val);
                   setCurrentPage(1);
                 }}
                 aria-label="Filter Survey Month"
-                className="h-8 px-2.5 bg-white border border-slate-300 rounded-md text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                className="h-8 px-2.5 bg-white border border-slate-300 rounded-md text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600 font-medium"
               >
-                <option value="all">All Survey Cycles</option>
+                <option value="latest">Latest Status per Machine (26 Units)</option>
+                <option value="all">All Survey Cycles ({data.length} Records)</option>
                 {availableMonths.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
+                  <option key={m.monthKey} value={m.monthKey}>
+                    {m.monthKey} • {m.label} ({m.uniqueCount} Equipments)
                   </option>
                 ))}
               </select>
@@ -341,15 +401,16 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
           {/* Results Counter & Reset */}
           <div className="flex items-center gap-3 ml-auto">
             <span className="font-semibold text-slate-700">
-              Showing <strong className="text-slate-900">{sortedData.length}</strong> of {data.length} records
+              Showing <strong className="text-slate-900">{sortedData.length}</strong> of {baseScopedData.length} records
             </span>
-            {(searchTerm || selectedArea !== 'all' || selectedCondition !== 'all' || selectedMonth !== 'all') && (
+            {(searchTerm || selectedArea !== 'all' || selectedCondition !== 'all' || selectedMonth !== 'latest') && (
               <button
                 onClick={() => {
                   setSearchTerm('');
                   setSelectedArea('all');
                   setSelectedCondition('all');
-                  setSelectedMonth('all');
+                  setSelectedMonth('latest');
+                  if (onMonthChange) onMonthChange('latest');
                   setCurrentPage(1);
                 }}
                 className="text-blue-600 hover:underline font-semibold"
@@ -361,8 +422,9 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
         </div>
       </div>
 
-      {/* Main High-Density Industrial Table */}
-      <div className="overflow-x-auto">
+      {/* Main Content Area: Responsive Table on Desktop, Native Cards on Mobile */}
+      {/* 1. Desktop Table (md and up) */}
+      <div className="hidden md:block overflow-x-auto">
         <Table className="w-full text-xs">
           <TableHeader className="bg-slate-100/90 text-slate-700 border-b border-slate-200 font-bold">
             <TableRow className="hover:bg-transparent">
@@ -634,6 +696,130 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* 2. Mobile Native Card List View (Phones / < md) */}
+      <div className="block md:hidden divide-y divide-slate-100 bg-white">
+        {paginatedData.length === 0 ? (
+          <div className="p-8 text-center text-slate-500 text-xs">
+            <p className="font-bold text-slate-800">No machinery matching your filter</p>
+            <p className="mt-1">Try clearing search or filters.</p>
+          </div>
+        ) : (
+          paginatedData.map((equipment, idx) => {
+            const peaks = getRecordPeakValues(equipment);
+            const normCond = normalizeCondition(equipment.condition);
+            const isAlarm = normCond === 'Alarm';
+            const isAlert = normCond === 'Alert';
+            const velPercent = Math.min(Math.round((peaks.peakVelocity / 7.0) * 100), 100);
+
+            return (
+              <div
+                key={`mobile-${equipment.equipmentName}-${equipment.date}-${idx}`}
+                onClick={() => onEquipmentClick(equipment)}
+                className={`p-3.5 space-y-2.5 transition-colors cursor-pointer active:bg-slate-100 ${
+                  isAlarm ? 'bg-red-50/20' : isAlert ? 'bg-amber-50/15' : 'bg-white'
+                }`}
+              >
+                {/* Header: Name + Badge */}
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-bold text-slate-900 text-xs">
+                      {equipment.equipmentName}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mt-0.5">
+                      <span>{equipment.area}</span>
+                      <span>•</span>
+                      <span>{equipment.driven || 'Machine'}</span>
+                      <span>•</span>
+                      <span>{equipment.date}</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    {isAlarm ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">
+                        <span className="h-1.5 w-1.5 rounded-full bg-red-600 animate-pulse" />
+                        Alarm
+                      </span>
+                    ) : isAlert ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                        Alert
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                        Normal
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* 3 Metric Mini Cards */}
+                <div className="grid grid-cols-2 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100 text-xs">
+                  {/* Peak Velocity */}
+                  <div>
+                    <div className="text-[9px] uppercase font-semibold text-slate-400">
+                      Peak Velocity
+                    </div>
+                    <div
+                      className={`font-black text-xs ${
+                        isAlarm ? 'text-red-600' : isAlert ? 'text-amber-600' : 'text-slate-900'
+                      }`}
+                    >
+                      {peaks.peakVelocity.toFixed(2)}{' '}
+                      <span className="text-[9px] font-normal text-slate-400">mm/s</span>
+                    </div>
+                    <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden mt-1">
+                      <div
+                        className={`h-full ${
+                          isAlarm ? 'bg-red-600' : isAlert ? 'bg-amber-500' : 'bg-emerald-500'
+                        }`}
+                        style={{ width: `${velPercent}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Peak Accel */}
+                  <div>
+                    <div className="text-[9px] uppercase font-semibold text-slate-400">
+                      Bearing Accel
+                    </div>
+                    <div
+                      className={`font-black text-xs ${
+                        peaks.peakAcceleration > 10.0
+                          ? 'text-red-600'
+                          : peaks.peakAcceleration > 4.5
+                          ? 'text-amber-600'
+                          : 'text-slate-900'
+                      }`}
+                    >
+                      {peaks.peakAcceleration.toFixed(2)}{' '}
+                      <span className="text-[9px] font-normal text-slate-400">g</span>
+                    </div>
+                    <div className="text-[9px] text-slate-400 truncate mt-1">
+                      Pt: {peaks.peakAccelerationPoint.slice(0, 7)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Observation / Tap notice */}
+                {equipment.observation && (
+                  <p className="text-[11px] text-slate-600 line-clamp-1">
+                    <strong className="text-slate-800">Obs: </strong>
+                    {equipment.observation}
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between text-[10px] text-blue-600 font-semibold pt-0.5">
+                  <span>View detailed vibration trends</span>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Pagination Footer Controls */}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <!-- Outer red square border & background container -->
+  <rect x="0" y="0" width="100" height="100" fill="#B91C1C" />
+  <rect x="4" y="4" width="92" height="92" fill="#F8F9FA" />
+  
+  <!-- 't' top solid red block (ascender) -->
+  <rect x="24" y="4" width="18" height="20" fill="#B91C1C" />
+  
+  <!-- 't' horizontal crossbar -->
+  <rect x="24" y="40" width="18" height="2" fill="#B91C1C" />
+  
+  <!-- 't' vertical inner stem line -->
+  <rect x="24" y="40" width="2" height="38" fill="#B91C1C" />
+  
+  <!-- 'm' two vertical red divider lines (starting below top white header down to bottom red frame) -->
+  <rect x="58" y="24" width="2" height="72" fill="#B91C1C" />
+  <rect x="76" y="24" width="2" height="72" fill="#B91C1C" />
+</svg>
